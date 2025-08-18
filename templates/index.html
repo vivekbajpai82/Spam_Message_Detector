@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Classifier</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.2);
+        }
+        .btn-custom {
+            background-color: #ff7e5f;
+            color: white;
+            font-weight: bold;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #feb47b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container vh-100 d-flex justify-content-center align-items-center">
+        <div class="card p-4" style="width: 500px;">
+            <h2 class="text-center mb-4">📩 Spam Message Classifier</h2>
+            <form method="POST" action="/">
+                <div class="mb-3">
+                    <textarea class="form-control" name="message" rows="4" placeholder="Type your message here..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-custom w-100">Check Message</button>
+            </form>
+            {% if result %}
+                <div class="alert mt-4 {% if 'SPAM' in result %}alert-danger{% else %}alert-success{% endif %}" role="alert">
+                    {{ result }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
