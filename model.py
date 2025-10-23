@@ -1,22 +1,22 @@
+# model.py
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
+import joblib
 
 # === Load cleaned dataset ===
-df = pd.read_csv(r"C:\Users\ashut\OneDrive\Desktop\Email Spam\spam_cleaned.csv")
+df = pd.read_csv("spam_cleaned.csv")
 
-# === Drop rows with missing or empty cleaned_text ===
+# === Drop missing or empty text ===
 df = df.dropna(subset=['cleaned_text'])
 df = df[df['cleaned_text'].str.strip() != '']
 
-# === Map labels (ham -> 0, spam -> 1) ===
+# === Encode labels ===
 df['label'] = df['v1'].map({'ham': 0, 'spam': 1})
 
-# === Features and target ===
+# === Split features & labels ===
 X = df['cleaned_text']
 y = df['label']
 
@@ -25,39 +25,20 @@ vectorizer = TfidfVectorizer(max_features=3000)
 X_vectorized = vectorizer.fit_transform(X)
 
 # === Train-test split ===
-X_train, X_test, y_train, y_test = train_test_split(
-    X_vectorized, y, test_size=0.2, random_state=42
-)
+X_train, X_test, y_train, y_test = train_test_split(X_vectorized, y, test_size=0.2, random_state=42)
 
-# === Train Naive Bayes model ===
+# === Train model ===
 model = MultinomialNB()
 model.fit(X_train, y_train)
 
-# === Predict on test set ===
+# === Evaluate ===
 y_pred = model.predict(X_test)
-
-# === Evaluation ===
 print("\n📊 Classification Report:\n")
-print(classification_report(y_test, y_pred, target_names=['ham', 'spam']))
+print(classification_report(y_test, y_pred))
 print(f"✅ Accuracy: {accuracy_score(y_test, y_pred):.4f}")
 
-# === Confusion Matrix ===
-cm = confusion_matrix(y_test, y_pred)
-sns.heatmap(
-    cm, annot=True, fmt='d', cmap='Blues',
-    xticklabels=['Predicted Ham', 'Predicted Spam'],
-    yticklabels=['Actual Ham', 'Actual Spam']
-)
-plt.title("📌 Confusion Matrix")
-plt.xlabel("Prediction")
-plt.ylabel("Actual")
-plt.tight_layout()
-plt.show()
-import joblib
+# === Save model & vectorizer ===
+joblib.dump(model, "model/spam_model.pkl")
+joblib.dump(vectorizer, "model/tfidf_vectorizer.pkl")
 
-# Save model and vectorizer
-joblib.dump(model, r"C:\Users\ashut\OneDrive\Desktop\Email Spam\spam_model.pkl")
-joblib.dump(vectorizer, r"C:\Users\ashut\OneDrive\Desktop\Email Spam\tfidf_vectorizer.pkl")
-
-print("✅ Model and vectorizer saved successfully.")
-
+print("✅ Model and vectorizer saved successfully in 'model' folder.")
